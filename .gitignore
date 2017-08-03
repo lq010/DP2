@@ -1,0 +1,11 @@
+/bin/
+/build/
+/custom/
+/doc/
+/xsd/
+/answer.txt
+/sol_build.xml
+/gen-src/
+/lib/
+/war/
+/WebContent/

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+		targetNamespace="http://www.example.org/nffgVerifier" 
+		xmlns:tns="http://www.example.org/nffgVerifier" 		
+		elementFormDefault="qualified">
+		
+		<!-- copy from nffgInfo.xsd -->
+	<xsd:element name="NffgInfo" type="tns:NffgInfoType">
+		<xsd:unique name="unique_nffg">
+			<xsd:selector xpath="tns:NFFG"></xsd:selector>
+			<xsd:field xpath="@NffgName" />
+		</xsd:unique>
+
+		<xsd:unique name="unique_policy">
+			<xsd:selector xpath="tns:NFFG/tns:Policies/*"></xsd:selector>
+			<xsd:field xpath="@PolicyName"></xsd:field>
+		</xsd:unique>
+	</xsd:element>
+
+
+	<xsd:complexType name="NffgInfoType">
+		<xsd:sequence>
+			<xsd:element name="NFFG" type="tns:NffgType" minOccurs="0"
+				maxOccurs="unbounded">
+				<xsd:key name="NodeID">
+					<xsd:selector xpath="tns:Node"></xsd:selector>
+					<xsd:field xpath="@NodeName"></xsd:field>
+				</xsd:key>
+
+				<xsd:keyref name="Link_source" refer="tns:NodeID">
+					<xsd:selector xpath="tns:Link"></xsd:selector>
+					<xsd:field xpath="tns:SourceNode"></xsd:field>
+				</xsd:keyref>
+
+				<xsd:keyref name="Link_destination" refer="tns:NodeID">
+					<xsd:selector xpath="tns:Link"></xsd:selector>
+					<xsd:field xpath="tns:DestinationNode"></xsd:field>
+				</xsd:keyref>
+
+				<xsd:keyref name="ReachabilityPolicy_source" refer="tns:NodeID">
+					<xsd:selector xpath="tns:Policies/tns:ReachabilityPolicy"></xsd:selector>
+					<xsd:field xpath="tns:SourceNode"></xsd:field>
+				</xsd:keyref>
+
+				<xsd:keyref name="ReachabilityPolicy_destination" refer="tns:NodeID">
+					<xsd:selector xpath="tns:Policies/tns:ReachabilityPolicy"></xsd:selector>
+					<xsd:field xpath="tns:DestinationNode"></xsd:field>
+				</xsd:keyref>
+
+				<xsd:keyref name="TraversalPolicy_source" refer="tns:NodeID">
+					<xsd:selector xpath="tns:Policies/tns:TraversalPolicy"></xsd:selector>
+					<xsd:field xpath="tns:SourceNode"></xsd:field>
+				</xsd:keyref>
+
+				<xsd:keyref name="TraversalPolicy_destination" refer="tns:NodeID">
+					<xsd:selector xpath="tns:Policies/tns:TraversalPolicy"></xsd:selector>
+					<xsd:field xpath="tns:DestinationNode"></xsd:field>
+				</xsd:keyref>
+
+				<xsd:unique name="unique_link">
+					<xsd:selector xpath="tns:Link"></xsd:selector>
+					<xsd:field xpath="@LinkName"></xsd:field>
+				</xsd:unique>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="NffgType">
+		<xsd:sequence>
+			<xsd:element name="updateTime" type="xsd:dateTime"></xsd:element>
+			<xsd:element name="Node" type="tns:NodeType" minOccurs="0"
+				maxOccurs="unbounded"></xsd:element>
+			<xsd:element name="Link" type="tns:LinkType" minOccurs="0"
+				maxOccurs="unbounded"></xsd:element>
+			<xsd:element name="Policies" type="tns:PoliciesType"
+				minOccurs="0"></xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="NffgName" type="tns:nameType" use="required"></xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="NodeType">
+		<xsd:sequence>
+			<xsd:element name="FuncType" type="tns:FunctionType"></xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="NodeName" type="tns:nameType" use="required"></xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="LinkType">
+		<xsd:sequence>
+			<xsd:element name="SourceNode" type="tns:nameType"></xsd:element>
+			<xsd:element name="DestinationNode" type="tns:nameType"></xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="LinkName" type="tns:nameType" use="required"></xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="PoliciesType">
+		<xsd:sequence>
+			<xsd:element name="ReachabilityPolicy" type="tns:ReachabilityPolicyType" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="TraversalPolicy" type="tns:TraversalPolicyType"  minOccurs="0" maxOccurs="unbounded" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="ReachabilityPolicyType">
+		<xsd:sequence>
+			<xsd:element name="isPositive" type="xsd:boolean" />
+			<xsd:element name="SourceNode" type="tns:nameType" />
+			<xsd:element name="DestinationNode" type="tns:nameType" />
+			<xsd:element name="verificationResult" type="tns:verificationResultType"
+				minOccurs="0"></xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="PolicyName" type="tns:nameType" use="required"></xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="TraversalPolicyType">
+		<xsd:complexContent>
+			<xsd:extension base="tns:ReachabilityPolicyType">
+				<xsd:sequence>
+					<xsd:element name="TraversedFuncTypes" type="tns:TraversedFuncListType"></xsd:element>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="TraversedFuncListType">
+		<xsd:sequence>
+			<xsd:element name="TraversedFuncType" type="tns:FunctionType" minOccurs="1" maxOccurs="unbounded"></xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="verificationResultType">
+		<xsd:sequence>
+			<xsd:element name="Result" type="xsd:boolean"></xsd:element>
+			<xsd:element name="verifcationTime" type="xsd:dateTime"></xsd:element>
+			<xsd:element name="verificationMessage" type="xsd:string"></xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	
+	<xsd:simpleType name="FunctionType" final="restriction">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CACHE" />
+			<xsd:enumeration value="DPI" />
+			<xsd:enumeration value="FW" />
+			<xsd:enumeration value="MAIL_SERVER" />
+			<xsd:enumeration value="MAIL_CLIENT" />
+			<xsd:enumeration value="NAT" />
+			<xsd:enumeration value="SPAM" />
+			<xsd:enumeration value="VPN" />
+			<xsd:enumeration value="WEB_SERVER" />
+			<xsd:enumeration value="WEB_CLIENT" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="nameType">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[\w\d-]+"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+		<!-- end copy -->
+		
+		
+		
+		<xsd:element name="taggedPolicies" type="tns:TaggedPolicies"/>
+		<xsd:element name="taggedReachabilityPolicy" type="tns:TaggedReachabilityPolicy"/>
+		<xsd:element name="taggedTraversalPolicy" type="tns:TaggedTraversalPolicy"/>
+		<!-- <xsd:element name="policyNames" type = "tns:PolicyNames"/>  -->
+		<!-- 
+		<xsd:element name="taggedVerificationResults" type="tns:TaggedVerificationResults"/>
+		<xsd:element name="taggedVerificationResult" type="tns:TaggedVerificationResult"/>
+		 -->
+		
+		
+	<xsd:complexType name="TaggedPolicies">
+	    <xsd:sequence>     
+	    	<xsd:element name="taggedReachabilityPolicy" type="tns:TaggedReachabilityPolicy" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="taggedTraversalPolicy" type="tns:TaggedTraversalPolicy" minOccurs="0" maxOccurs="unbounded"/>
+	    </xsd:sequence>
+  	</xsd:complexType>
+  	
+  	<xsd:complexType name="TaggedReachabilityPolicy">
+  		<xsd:complexContent>
+  			<xsd:extension base="tns:ReachabilityPolicyType">
+				<xsd:sequence>
+					<xsd:element name="belongs" type="tns:Hyperlinks" minOccurs ="0"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+  	</xsd:complexType>
+  	
+  	<xsd:complexType name="TaggedTraversalPolicy">
+  		<xsd:complexContent>
+  			<xsd:extension base="tns:TraversalPolicyType">
+				<xsd:sequence>
+					<xsd:element name="belongs" type="tns:Hyperlinks" minOccurs ="0"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+  	</xsd:complexType>
+
+	<xsd:complexType name="Hyperlinks">
+  		<xsd:sequence>
+  			<xsd:element name="policy" type="tns:Hyperlink" minOccurs="0"/>
+  			<xsd:element name="nffg" type="tns:Hyperlink"/>
+  		</xsd:sequence>
+  	</xsd:complexType>
+  	
+  	<xsd:complexType name="Hyperlink">
+  		<xsd:attribute name="rel" type="xsd:string" use="required"></xsd:attribute>
+  		<xsd:attribute name="href" type="xsd:string" use="optional"></xsd:attribute>
+  	</xsd:complexType>
+  	
+  	<!-- unuseful if use param
+	<xsd:complexType name="PolicyNames">
+	    <xsd:sequence>     
+	    	<xsd:element name="PolicyName" type="tns:nameType" minOccurs="1" maxOccurs="unbounded"/>
+	    </xsd:sequence>
+  	</xsd:complexType>
+  	 --> 
+  	 
+  	 <!-- return policies 
+  	 <xsd:complexType name="TaggedVerificationResults">
+	    <xsd:sequence>     
+	    	<xsd:element name="taggedVerificationResult" type="tns:TaggedVerificationResult" minOccurs="0" maxOccurs="unbounded"/>
+	    </xsd:sequence>
+  	</xsd:complexType>
+  	
+	<xsd:complexType name="TaggedVerificationResult">
+		<xsd:complexContent>
+  			<xsd:extension base="tns:verificationResultType">
+				<xsd:sequence>
+					<xsd:element name="Policy" type="tns:Hyperlink" minOccurs ="0"/>
+					<xsd:element name="NFFG" type="tns:Hyperlink" minOccurs ="0"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+  	  -->
+  	 
+</xsd:schema>
